@@ -16,16 +16,20 @@ The 'order' variable sets the accuracy of the five outcomes. The number represen
 A higher number will give better accuracy.
 '''
 
+points = [[1,1],[0,0],[1,-1],[-1,-1],[0,0],[-1,1]]
+orders = [2,4,6,10,100]
 
-
-
+#EXAMPLES
 
 #triangle
 #points = [[0,0],[0,1],[1,0]]
+
 #square
 #points = [[1,1],[1,-1],[-1,-1],[-1,1]]
+
 #hourglass
 #points = [[1,1],[-1,-1],[1,-1],[-1,1]]
+
 #proper hourglass
 points = [[1,1],[0,0],[1,-1],[-1,-1],[0,0],[-1,1]]
 
@@ -46,19 +50,22 @@ points = [[0,1],
           [math.cos((pi/2)+3*2*pi/5),math.sin((pi/2)+3*2*pi/5)],
          ]
 '''
-orders = [2,4,6,10,100]
 
+#Customisations for the outcome plots
 view_draw_dots = 1
 view_draw_grid = 1
 view_four_grid = 1
 
-#gets highest order in 'orders'
+
+#LOGIC
+
+#Gets highest order in 'orders'
 hig_ord = 0
 for i in orders:
     if i > hig_ord:
         hig_ord = i
         
-
+#Gets the needed mathematical data for the lines that make the shape
 lines = []
 for i in range(len(points)-1):
     a = []
@@ -70,14 +77,14 @@ a.append(points[-1])
 a.append(points[0])
 lines.append(a)
 
-#period
+#Finds the period of the Fourier series
 p = len(lines)
 
-#given initial coordinate I, final coordinate F and line number L, returns contribution to a0
+#Given initial coordinate I, final coordinate F and line number L, returns contribution to a0 coefficient
 def a0_segment(I,F,L):
     return((F+I)/2)
 
-#given initial coordinate I, final coordinate F,line number L,and n, returns contribution to an
+#Given initial coordinate I, final coordinate F,line number L,and n, returns contribution to an coefficient
 def an_segment(I,F,L,n):
     N = 2*pi*n/p
     D = F-I
@@ -85,7 +92,7 @@ def an_segment(I,F,L,n):
     term2 = (D/N**2)*(N*(L+1)*math.sin(N*(L+1))-N*L*math.sin(N*L)+math.cos(N*(L+1))-math.cos(N*L))
     return(term1+term2)
 
-#given initial coordinate I, final coordinate F,line number L,and n, returns contribution to bn
+#Given initial coordinate I, final coordinate F,line number L,and n, returns contribution to bn coefficient
 def bn_segment(I,F,L,n):
     N = 2*pi*n/p
     D = F-I
@@ -93,7 +100,7 @@ def bn_segment(I,F,L,n):
     term2 = (D/N**2)*(-N*(L+1)*math.cos(N*(L+1))+N*L*math.cos(N*L)+math.sin(N*(L+1))-math.sin(N*L))
     return(term1+term2)
 
-#c defines which coordinate x=0 y=1
+#c defines which coordinate to get coefficient for: 0=x, 1=y
 def get_a0(c):
     a = 0
     for i in range(len(lines)):
@@ -123,6 +130,8 @@ def sine_part(n,T,x):
 def cosine_part(n,T,x):
     return(math.cos(2*pi*n*x/T))
 
+
+#Puts together the final Fourier series and returns y for given x
 def end_fun(a0,a,b,T,x,o):
     y = a0
     for i in range(o):
@@ -131,7 +140,7 @@ def end_fun(a0,a,b,T,x,o):
     return(y)
 
 
-
+#Finds the coefficients for both coordinates
 ax0 = get_a0(0)
 ax = []
 bx = []
@@ -145,6 +154,8 @@ for i in range(hig_ord):
     ay.append(get_an(1,n))
     by.append(get_bn(1,n))
 
+
+#Prepare storage for plot data
 fx0=[]
 fy0=[]
 fx1=[]
@@ -158,6 +169,7 @@ fy4=[]
 
 t = np.arange(0, p, p/1000)
 
+#Get plot data
 for i in t:
     fx0.append(end_fun(ax0,ax,bx,p,i,orders[0]))
     fy0.append(end_fun(ay0,ay,by,p,i,orders[0]))
@@ -170,7 +182,7 @@ for i in t:
     fx4.append(end_fun(ax0,ax,bx,p,i,orders[4]))
     fy4.append(end_fun(ay0,ay,by,p,i,orders[4]))
 
-#restates coordinates of each point so that they can be graphed
+#Restates coordinates of each point so that they can be graphed
 lx = []
 ly = []
 for i in points:
@@ -178,7 +190,8 @@ for i in points:
     ly.append(i[1])
 lx.append(points[0][0])
 ly.append(points[0][1])
-    
+
+#Make plots and show
 fig, axs = plt.subplots(3, 2)
 axs[0, 0].plot(lx, ly, 'r-')
 if len(points) < 30 and view_draw_dots != 0:
